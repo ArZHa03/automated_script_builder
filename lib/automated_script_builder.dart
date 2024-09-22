@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:automated_script_builder/iautomated_script_builder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InteractionRecorder implements IInteractionRecorder {
   DateTime? _idFile;
+  static int? fileCode = 1;
 
   @override
   Future<void> logInteraction(String interaction, String key) async {
@@ -23,12 +26,14 @@ class InteractionRecorder implements IInteractionRecorder {
           await downloadDir.create(recursive: true);
         }
 
-        final path = '${downloadDir.path}/interaction_log.txt';
+        final now = DateTime.now();
+        final formattedDate = DateFormat('dd-MM-yyyy').format(now);
+        final path = '${downloadDir.path}/${formattedDate}_log($fileCode).txt';
         final file = File(path);
 
         log('Logging interaction to: $path');
 
-        if (key != "" || key != null) {
+        if (key != "") {
           await file.writeAsString('$interaction: $key\n',
               mode: FileMode.append);
         } else {
@@ -42,20 +47,20 @@ class InteractionRecorder implements IInteractionRecorder {
     }
   }
 
-  Future<void> deleteLogFile() async {
-    if (await Permission.storage.request().isGranted) {
-      final directory = Directory('/storage/emulated/0/Download/Logger');
-      final path = '${directory.path}/interaction_log.txt';
-      final file = File(path);
-
-      if (await file.exists()) {
-        await file.delete();
-        log('Deleted file: $path');
-      } else {
-        log('File does not exist: $path');
-      }
+  @override
+  Future<void> initInteractionRecorder() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    int code = await _getExternalCounter(prefs);
+    if (code == 0) {
+      await prefs.setInt('interaction_log', 1);
     } else {
-      log('Storage permission not granted');
+      await prefs.setInt('interaction_log', code++);
+      fileCode = code++;
     }
+  }
+
+  Future<int> _getExternalCounter(SharedPreferences prefs) async {
+    final int? counter = prefs.getInt('interaction_log');
+    return counter ?? 0;
   }
 }
