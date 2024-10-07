@@ -49,7 +49,7 @@ class InteractionRecorder implements IInteractionRecorder {
 
   @override
   Future<void> initInteractionRecorder() async {
-    await Permission.storage.request();
+    await _requestFilePermissions();
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     int code = await _getExternalCounter(prefs);
     if (code == 0) {
