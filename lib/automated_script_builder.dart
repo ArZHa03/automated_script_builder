@@ -18,7 +18,7 @@ class InteractionRecorder implements IInteractionRecorder {
   }
 
   Future<void> _writeLogToFile(String interaction, String key) async {
-    if (await Permission.storage.request().isGranted) {
+    if (await _requestFilePermissions()) {
       final directory = await getExternalStorageDirectory();
       if (directory != null) {
         final downloadDir = Directory('/storage/emulated/0/Download/Logger');
@@ -65,4 +65,22 @@ class InteractionRecorder implements IInteractionRecorder {
     final int? counter = prefs.getInt('interaction_log');
     return counter ?? 0;
   }
+
+  Future<bool> _requestFilePermissions() async {
+    if (await Permission.manageExternalStorage.isGranted) {
+      return true;
+    }
+
+    if (await Permission.manageExternalStorage.request().isGranted) {
+      return true;
+    }
+
+    if (await Permission.storage.request().isGranted) {
+      return true;
+    }
+
+    log('Storage permissions not granted, unable to proceed');
+    return false;
+  }
+
 }
