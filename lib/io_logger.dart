@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lite_storage/lite_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Logger {
   DateTime? _idFile;
@@ -15,13 +15,13 @@ class Logger {
   Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
     await _requestFilePermissions();
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    int code = await _getExternalCounter(prefs);
+    final storage = await LiteStorage.init('Logger');
+    int code = await _getExternalCounter(storage);
     if (code == 0) {
-      await prefs.setInt('interaction_log', 1);
+      storage.write('interaction_log', 1);
     } else {
       int newCode = code + 1;
-      await prefs.setInt('interaction_log', newCode);
+      storage.write('interaction_log', newCode);
       _fileCode = newCode;
     }
     _isInitialized = true;
@@ -62,8 +62,8 @@ class Logger {
     }
   }
 
-  Future<int> _getExternalCounter(SharedPreferences prefs) async {
-    final int? counter = prefs.getInt('interaction_log');
+  Future<int> _getExternalCounter(LiteStorage prefs) async {
+    final int? counter = prefs.read('interaction_log');
     return counter ?? 0;
   }
 
