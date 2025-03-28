@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Logger {
   DateTime? _idFile;
-  static int? _fileCode = 1;
+  static int _fileCode = 1;
   bool _isInitialized = false;
 
   Future<void> init() async {
