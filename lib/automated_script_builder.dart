@@ -17,10 +17,7 @@ class InteractionRecorder implements IInteractionRecorder {
 
   @override
   Future<void> initInteractionRecorder() async {
-    if (kIsWeb) {
-      log('Web platform detected, skipping file permission request', name: 'Logger');
-      return;
-    }
+    if (kIsWeb) return log('Web platform not supported', name: 'Logger');
 
     WidgetsFlutterBinding.ensureInitialized();
     await _requestFilePermissions();
@@ -38,11 +35,7 @@ class InteractionRecorder implements IInteractionRecorder {
 
   @override
   Future<void> logInteraction(String interaction, String key) async {
-    if (kIsWeb) {
-      log('Web platform detected, skipping logging', name: 'Logger');
-      return;
-    }
-
+    if (kIsWeb) return;
     if (!_isInitialized) return log('Logger not initialized', name: 'Logger');
 
     _idFile ??= DateTime.now();
