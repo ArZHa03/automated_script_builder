@@ -21,13 +21,13 @@ class InteractionRecorder implements IInteractionRecorder {
 
     WidgetsFlutterBinding.ensureInitialized();
     await _requestFilePermissions();
-    final storage = await LiteStorage.init('Logger');
-    int code = await _getExternalCounter(storage);
+    await LiteStorage.init('Logger');
+    int code = await _getExternalCounter();
     if (code == 0) {
-      storage.write('interaction_log', 1);
+      LiteStorage.write('interaction_log', 1);
     } else {
       int newCode = code + 1;
-      storage.write('interaction_log', newCode);
+      LiteStorage.write('interaction_log', newCode);
       _fileCode = newCode;
     }
     _isInitialized = true;
@@ -70,8 +70,8 @@ class InteractionRecorder implements IInteractionRecorder {
     }
   }
 
-  Future<int> _getExternalCounter(LiteStorage prefs) async {
-    final int? counter = prefs.read('interaction_log');
+  Future<int> _getExternalCounter() async {
+    final int? counter = LiteStorage.read('interaction_log');
     return counter ?? 0;
   }
 
