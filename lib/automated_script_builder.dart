@@ -1,12 +1,13 @@
-import 'dart:developer';
-import 'dart:io';
+import 'dart:developer' show log;
+import 'dart:io' show Directory, File, FileMode;
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/widgets.dart' show WidgetsFlutterBinding;
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:lite_storage/lite_storage.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:path_provider/path_provider.dart' show getExternalStorageDirectory;
+import 'package:permission_handler/permission_handler.dart'
+    show FuturePermissionStatusGetters, Permission, PermissionActions, PermissionCheckShortcuts;
 
 import 'iautomated_script_builder.dart';
 
@@ -36,10 +37,9 @@ class InteractionRecorder implements IInteractionRecorder {
   @override
   Future<void> logInteraction(String interaction, String key) async {
     if (kIsWeb) return;
-    if (!_isInitialized) return log('Logger not initialized', name: 'Logger');
+    if (!_isInitialized) return log('Logger not initialized | Need to Initialize first', name: 'Logger');
 
     _idFile ??= DateTime.now();
-    log(_idFile.toString(), name: 'Logger');
     await _writeLogToFile(interaction, key);
   }
 
